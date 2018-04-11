@@ -1,34 +1,37 @@
-var url = require('url')
-var Utils = new Object()
+const url = require('url')
+const Utils = new Object()
 
 Utils.isset = function isset(object){
-	return (object != "undefined" && object != undefined && object != null && object != "" && typeof(object) != 'undefined') ? true : false ;
+	return (
+		object !== "undefined"
+		&& object !== undefined
+		&& object !== null
+		&& object !== ""
+		&& typeof(object) !== 'undefined');
 }
 
 Utils.getHost = function(inputLocation, options){
-	var options = !options || typeof options == 'function' ? {} : options ;
-	var protocolName = (typeof options == 'object' && options.cert || options.key || options.ca) ? 'https' : 'http' ;
+	options = !options || typeof options === 'function' ? {} : options ;
+	const protocolName = (typeof options === 'object' && options.cert || options.key || options.ca) ? 'https' : 'http' ;
 
 	// define location
-	if(!isNaN(inputLocation)) {
-		var location = url.parse(protocolName+'://0.0.0.0:'+inputLocation);
-	
-	} else if(typeof inputLocation == 'string') {
-	    var location = inputLocation.indexOf('://') == -1 ? 'http://' + inputLocation : inputLocation ;
+	let location = inputLocation;
+	if (typeof inputLocation !== 'object') {
+		if(!isNaN(inputLocation)) {
+			location = url.parse(protocolName+'://0.0.0.0:'+inputLocation);
+		} else if(typeof inputLocation === 'string') {
+			location = inputLocation.indexOf('://') === -1 ? 'http://' + inputLocation : inputLocation ;
 			location = url.parse(location) 
-	
-	} else if(typeof inputLocation == 'object') {
-		var location = inputLocation;
-		
-	} else if(!Utils.isset(inputLocation)){
-		var location = url.parse(protocolName+'://0.0.0.0:80/');
+		} else if(!Utils.isset(inputLocation)){
+			location = url.parse(protocolName+'://0.0.0.0:80/');
+		}
 	}
 	
-	var port = location.protocol === 'http:' && (!options || (!options.cert && !options.key)) 
+	const port = location.protocol === 'http:' && (!options || (!options.cert && !options.key)) 
 		? (location.port || 80) 
 		: (location.port || 443) ;
 	
-	return { port: port, location: location }
+	return { port, location }
 }
 
 module.exports = Utils
